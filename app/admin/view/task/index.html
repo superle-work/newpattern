@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css"  media="all">
+  <link rel="stylesheet" href="__PUBLIC__/font-awesome/css/font-awesome.min.css" media="all" />
+  <link rel="stylesheet" href="__CSS__/admin.css"  media="all">
+  <style type="text/css">
+
+/* tooltip */
+#tooltip{
+  position:absolute;
+  border:1px solid #ccc;
+  background:#333;
+  padding:2px;
+  display:none;
+  color:#fff;
+}
+</style>
+</head>
+<body style="padding:10px;">
+  <div class="tplay-body-div">
+    <div class="layui-tab">
+      <ul class="layui-tab-title">
+        <li class="layui-this">任务管理</li>
+      </ul>
+    </div> 
+      <form class="layui-form serch" action="{:url('admin/task/index')}" method="post">
+        <div class="layui-form-item" style="float: left;">
+          <div class="layui-input-inline">
+            <input type="text" name="keywords" lay-verify="title" autocomplete="off" placeholder="请输入关键词" class="layui-input layui-btn-sm">
+          </div>
+          <div class="layui-input-inline">
+            <input type="text" name="fprice" lay-verify="title" autocomplete="off" placeholder="请输入心理价位----低" class="layui-input layui-btn-sm">
+            <input type="text" name="lprice" lay-verify="title" autocomplete="off" placeholder="请输入心理价位----高" class="layui-input layui-btn-sm">
+          </div>
+          <div class="layui-input-inline">
+            <div class="layui-inline">
+                <select name="status" lay-search="">
+                  <option value="">状态</option>
+                  <option value="0">未处理</option>
+                  <option value="1">已接受</option>
+                  <option value="2">拒绝</option>
+                  <option value="3">已支付</option>
+                </select>
+            </div>
+          </div>
+          <div class="layui-input-inline">
+            <div class="layui-inline">
+              <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="create_time" placeholder="创建时间" name="add_time">
+              </div>
+            </div>
+          </div>
+          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" lay-filter="serch">立即提交</button>
+        </div>
+      </form> 
+    <table class="layui-table" lay-size="sm">
+      <colgroup>
+        <col width="50">
+        <col width="100">
+        <col width="300">
+        <col width="100">
+        <col width="100">
+        <col width="150">
+        <col width="100">
+        <col width="150">
+        <col width="50">
+        <col width="50">
+        <col width="100">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>任务发布人</th>
+          <th>商品链接</th>
+          <th>心理价位</th>
+          <th>状态</th>
+          <th>发布时间</th>
+          <th>操作</th>
+        </tr> 
+      </thead>
+      <tbody>
+      {volist name="$data" id="vo"}
+        <tr>
+          <td>{$vo.id}</td>
+          <td>{$vo.user}</td>
+          <td>{$vo.goods_link}</td>
+          <td>{$vo.price}</td>
+          <td>{$vo.status_desc}</td>
+          <td>{$vo.add_time|date='Y-m-d H:i:s',###}</td>
+          <td class="operation-menu">
+            <div class="layui-btn-group">
+              {if condition="$vo.status lt 1"}
+                <a href="javascript:;" onclick="binding(this)" class="layui-btn layui-btn-xs layui-btn-primary yes" data-id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon">接受</i></a>
+                <a href="javascript:;" onclick="binding(this)" class="layui-btn layui-btn-xs layui-btn-primary no" data-id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon">拒绝</i></a>
+              {/if}
+            </div>
+          </td>
+        </tr>
+      {/volist}
+      </tbody>
+    </table>
+    <div style="padding:0 20px;">{$articles->render()}</div>
+    {include file="public/foot"}
+
+    <script type="text/javascript">
+
+      function binding(e){
+        var id = $(e).attr('data-id');
+        var status = 0;
+        if($(e).hasClass('yes')){
+          status = 1;
+        }else if($(e).hasClass('no')){
+          status = 2;
+        }
+        $.ajax({
+          type:"post",
+          url:"{:url('admin/task/changeStatus')}",
+          data:{status:status,id:id},
+          success:function(res){
+            layer.msg(res.msg);
+            if(res.code == 1) {
+              setTimeout(function(){
+                location.href = res.url;
+              },1500)
+            }
+          }
+        })
+      }
+    </script>
+  </div>
+</body>
+</html>

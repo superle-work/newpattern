@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css"  media="all">
+  <link rel="stylesheet" href="__PUBLIC__/font-awesome/css/font-awesome.min.css" media="all" />
+  <link rel="stylesheet" href="__CSS__/admin.css"  media="all">
+</head>
+<body style="padding:10px;">
+  <div class="tplay-body-div">
+    <div class="layui-tab">
+      <ul class="layui-tab-title">
+        <li><a href="{:url('admin/article/index')}" class="a_menu">任务订单管理</a></li>
+      </ul>
+    </div> 
+    <div style="margin-top: 20px;">
+    </div>
+    <form class="layui-form" id="admin">
+      
+      <div class="layui-form-item">
+        <label class="layui-form-label">订单号</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <input name="order_num" lay-verify="title" autocomplete="off" disabled class="layui-input" type="text" {notempty name="$data.order_num"}value="{$data.order_num}"{/notempty}>
+        </div>
+      </div>
+
+      <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">商品链接</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <textarea disabled class="layui-textarea" name="goods_link">{notempty name="$data.goods_link"}{$data.goods_link}{/notempty}</textarea>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">心里价位</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <input name="price" autocomplete="off" disabled class="layui-input" type="text" {notempty name="$data.price"}value="{$data.price}"{/notempty}>
+        </div>
+      </div>
+
+      <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">收货地址</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <textarea disabled class="layui-textarea" name="address">{notempty name="$data.address"}{$data.address}{/notempty}</textarea>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">收货人</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <input name="user" autocomplete="off" disabled class="layui-input" type="text" {notempty name="$data.user"}value="{$data.user}"{/notempty}>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">手机号</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <input name="phone" autocomplete="off" disabled class="layui-input" type="text" {notempty name="$data.phone"}value="{$data.phone}"{/notempty}>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">订单生成时间</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          <input name="add_time" autocomplete="off" disabled class="layui-input" type="text" {notempty name="$data.add_time"}value="{$data.add_time|date='Y-m-d H:i:s',###}"{/notempty}>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">快递单号</label>
+        <div class="layui-input-block" style="max-width:600px;">
+          {if condition="($data.express_num neq '') and ($data.express_num neq 'null')"}
+            <input name="express_num" id="num" autocomplete="off" disabled placeholder="{$data.express_num}" class="layui-input" type="text" {notempty name="$data.express_num"}value="{$data.express_num}"{/notempty}>
+          {else/}
+            <input name="express_num" id="num" autocomplete="off" class="layui-input" type="text" {notempty name="$data.express_num"}value="{$data.express_num}"{/notempty}>
+          {/if}
+        </div>
+      </div>
+      {notempty name="$data"}
+      <input type="hidden" name="id" value="{$data.id}">
+      {/notempty}
+      {if condition="($data.express_num eq '') or ($data.express_num eq 'null')"}
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="admin">立即提交</button>
+          </div>
+        </div>
+      {/if}
+    </form>
+
+
+    <script src="__PUBLIC__/layui/layui.js"></script>
+    <script src="__PUBLIC__/jquery/jquery.min.js"></script>
+    <script>
+      layui.use(['layer', 'form'], function() {
+          var layer = layui.layer,
+              $ = layui.jquery,
+              form = layui.form;
+          $(window).on('load', function() {
+              form.on('submit(admin)', function(data) {
+                var num = $('#num').val();
+                if((num == '') || (num == 'null')){
+                  layer.msg('请填写快递单号！');
+                  return false;
+                }
+                  $.ajax({
+                      url:"{:url('admin/task/publish')}",
+                      data:$('#admin').serialize(),
+                      type:'post',
+                      async: false,
+                      success:function(res) {
+                          if(res.code == 1) {
+                              layer.alert(res.msg, function(index){
+                                location.href = res.url;
+                              })
+                          } else {
+                              layer.msg(res.msg);
+                          }
+                      }
+                  })
+                  return false;
+              });
+          });
+      });
+    </script>
+  </div>
+</body>
+</html>
